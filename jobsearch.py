@@ -3,10 +3,12 @@ from bs4 import BeautifulSoup as bs
 import re, datetime
 import pandas as pd
 import pickle  
+import sqlite3
 
 
 pk_file = "./files/pikle.pk"
 pd.set_option('display.max_colwidth', None) #Pandas tuncates on raspberry pi. 
+db = './files/db.sql'
 
 #some job sites are iffy when it comes to headers
 headers = {
@@ -115,6 +117,10 @@ def main():
   irishjobs(a)
   jobsie(a)
   df = mk_df(a)
+
+  cnx = sqlite3.connect(db)
+  df.to_sql(name='jobs', con=cnx, if_exists='append')
+
   pickle.dump(df.to_html(escape = False), open(pk_file, 'wb'))
   print(df.head())
  
