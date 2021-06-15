@@ -41,16 +41,13 @@ def day_date(x = "1 Day ago"):
     past_time = datetime.datetime.now() - dt
     parsed_date = past_time.strftime("%d/%m/%Y")
     return parsed_date
-#day_date()
 
 def tidy_date(_input = "2 Jun 2021"):
     d = datetime.datetime.strptime(_input, '%d %b %Y')
     return d.strftime("%d/%m/%Y")
-#tidy_date()
 
 def today():
     return datetime.datetime.now().strftime("%d/%m/%Y")
-#today()
 
 def convert_comp(txt):
     #Converts company text and removes - and numbers
@@ -64,22 +61,8 @@ def convert_comp(txt):
     else:
         return txt
 
-def test2():
-    for x in data2:
-        #print(x.find('li', {'class':'updated-time'}).text.replace('Updated ', ''))
-        print(x.find('h3', {'itemprop':'name'}).a.text)
-#test2()
-
-def test1():
-    for i in data:
-        #print("Updated", i.find('dd', {'class':'fa-clock-o'}).text)
-        #print(i.find('dd', re.compile("fa-clock")))
-        txt = i.find('a').get('href').replace('/', '')
-        print(convert_comp(txt))
-
-#test1()
-
 def jobsie(a):
+    #get a load of shit from jobs.ie
     for i in data:
         job_title = i.find('h2').text
         comp = i.find('a').get('href').replace('/', '')
@@ -91,6 +74,7 @@ def jobsie(a):
         a.append([job_title, url, location, comp, updated, site, jobID])
 
 def irishjobs(a):
+    #get a load of shit from irishjobs.ie
     for x in data2:
         title = x.find_all('a')[1].text
         url = "https://www.irishjobs.ie"  + x.find_all('a')[1].get('href')
@@ -98,9 +82,11 @@ def irishjobs(a):
         comp = x.find('h3', {'itemprop':'name'}).a.text
         updated = x.find('li', {'class':'updated-time'}).text.replace('Updated ', '')
         site = "irishjobs.ie"
-        a.append([title, url, location, comp, updated, site])
+        jobID = url.split('-')[-1].split('.')[0]
+        a.append([title, url, location, comp, updated, site, jobID])
 
 def mk_df(a):
+    #make a dataframe from all the shit got from irishjobs.ie and jobs.ie
     df = pd.DataFrame(a, columns = ['title', 'url', 'location', 'comp', 'updated', 'site', 'JobID'])
     
     for index, row in df.iterrows():
@@ -116,10 +102,9 @@ def mk_df(a):
         #Clean up company stuff. 
         df.loc[index, 'comp'] = convert_comp( df.loc[index, 'comp'])
     
-    df['updated'] =pd.to_datetime(df.updated, dayfirst=True).dt.date  
-    df = df.sort_values(by = 'updated', ascending=False)
-    df['url'] = '<a href=' + df['url'] + '><div>' + 'url' + '</div></a>'
-    #df = df.style.format({'url': make_clickable})
+    df['updated'] =pd.to_datetime(df.updated, dayfirst=True).dt.date #make the date a date 
+    df = df.sort_values(by = 'updated', ascending=False) #sort by date
+    df['url'] = '<a href=' + df['url'] + '><div>' + 'url' + '</div></a>' # make it a url anchor
     
     return df
 
