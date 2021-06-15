@@ -4,8 +4,11 @@ import re, datetime
 import pandas as pd
 import pickle  
 
-pk_file = "./pikle.pk"
 
+pk_file = "./pikle.pk"
+pd.set_option('display.max_colwidth', None) #Pandas tuncates on raspberry pi. 
+
+#some job sites are iffy when it comes to headers
 headers = {
 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9", 
 "Accept-Encoding": "gzip, deflate", 
@@ -29,11 +32,8 @@ data2 = soup2.find_all('div', {'class':'module job-result'})
 
 year = datetime.datetime.now().strftime("%Y")
 
-def make_clickable(val):
-    # target _blank to open new window
-    return '<a target="_blank" href="{}">{}</a>'.format(val, val)
-
 def day_date(x = "1 Day ago"):
+    #Ago is not a date
     s = x.lower().replace('day ', 'days ')
     parsed_s = [s.split()[:2]]
     time_dict = dict((fmt,float(amount)) for amount,fmt in parsed_s)
@@ -43,10 +43,12 @@ def day_date(x = "1 Day ago"):
     return parsed_date
 
 def tidy_date(_input = "2 Jun 2021"):
+    #Takes the days in months and makes it more standard
     d = datetime.datetime.strptime(_input, '%d %b %Y')
     return d.strftime("%d/%m/%Y")
 
 def today():
+    #have a guess
     return datetime.datetime.now().strftime("%d/%m/%Y")
 
 def convert_comp(txt):
@@ -108,10 +110,13 @@ def mk_df(a):
     
     return df
 
-a = []
-irishjobs(a)
-jobsie(a)
-df = mk_df(a)
-pickle.dump(df.to_html(escape = False), open(pk_file, 'wb'))
+def main():
+  a = []
+  irishjobs(a)
+  jobsie(a)
+  df = mk_df(a)
+  pickle.dump(df.to_html(escape = False), open(pk_file, 'wb'))
+  print(df.head())
+ 
+main()
 
-print(df.head())
