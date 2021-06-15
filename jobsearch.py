@@ -7,7 +7,7 @@ import sqlite3
 
 
 pk_file = "./files/pikle.pk"
-pd.set_option('display.max_colwidth', None) #Pandas tuncates on raspberry pi. 
+pd.set_option('display.max_colwidth', -1) #Pandas tuncates on raspberry pi. 
 db = './files/db.sql'
 
 #some job sites are iffy when it comes to headers
