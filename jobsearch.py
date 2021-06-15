@@ -5,7 +5,7 @@ import pandas as pd
 import pickle  
 
 
-pk_file = "./pikle.pk"
+pk_file = "./files/pikle.pk"
 pd.set_option('display.max_colwidth', None) #Pandas tuncates on raspberry pi. 
 
 #some job sites are iffy when it comes to headers
