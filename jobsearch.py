@@ -5,6 +5,7 @@ import pandas as pd
 import pickle  
 import sqlite3
 from db import get_last_date
+import re
 
 
 pk_file = "./files/pikle.pk"
@@ -31,7 +32,8 @@ data = soup.find_all('div', {'class':"job-details-header serp-item default"})
 url2 = "https://www.irishjobs.ie/ShowResults.aspx?Keywords=linux&autosuggestEndpoint=%2Fautosuggest&Location=0&Category=&Recruiter=Company&Recruiter=Agency&btnSubmit=Search"
 r2 = requests.get(url2, headers = headers)
 soup2 = bs(r2.content, 'html.parser')
-data2 = soup2.find_all('div', {'class':'module job-result'})
+# data2 = soup2.find_all('div', {'class':'module job-result'})
+data2 = soup2.find_all('div', {'class':  re.compile(r'module job-result')})
 
 year = datetime.datetime.now().strftime("%Y")
 
