@@ -4,6 +4,7 @@ import re, datetime
 import pandas as pd
 import pickle  
 import sqlite3
+from db import get_last_date
 
 
 pk_file = "./files/pikle.pk"
@@ -75,7 +76,8 @@ def jobsie(a):
         updated = i.find('dd', {'class':'fa-clock-o'}).text
         site = "jobs.ie"
         jobID = url.replace('&', '=').split('=')[1]
-        a.append([job_title, url, location, comp, updated, site, jobID])
+        lastDate = get_last_date(jobID)
+        a.append([job_title, url, location, comp, updated, site, jobID, lastDate])
 
 def irishjobs(a):
     #get a load of shit from irishjobs.ie
@@ -87,11 +89,13 @@ def irishjobs(a):
         updated = x.find('li', {'class':'updated-time'}).text.replace('Updated ', '')
         site = "irishjobs.ie"
         jobID = url.split('-')[-1].split('.')[0]
-        a.append([title, url, location, comp, updated, site, jobID])
+        lastDate = get_last_date(jobID)
+        a.append([title, url, location, comp, updated, site, jobID, lastDate])
+        #a.append([title, url, location, comp, updated, site, jobID])
 
 def mk_df(a):
     #make a dataframe from all the shit got from irishjobs.ie and jobs.ie
-    df = pd.DataFrame(a, columns = ['title', 'url', 'location', 'comp', 'updated', 'site', 'JobID'])
+    df = pd.DataFrame(a, columns = ['title', 'url', 'location', 'comp', 'updated', 'site', 'JobID', 'lastDate'])
     
     for index, row in df.iterrows():
         if "Today" in df.loc[index, 'updated']:
@@ -119,7 +123,8 @@ def main():
   df = mk_df(a)
 
   cnx = sqlite3.connect(db)
-  df.to_sql(name='jobs', con=cnx, if_exists='append')
+  df_2_dump = df.drop('lastDate', axis=1)
+  df_2_dump.to_sql(name='jobs', con=cnx, if_exists='append')
 
   pickle.dump(df.to_html(escape = False), open(pk_file, 'wb'))
   print(df.head())
