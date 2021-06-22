@@ -4,7 +4,7 @@ import re, datetime
 import pandas as pd
 import pickle  
 import sqlite3
-from db import get_last_date
+from db import get_last_date, df_2_db, get_oldest_date
 import re
 
 pk_file = "./files/pikle.pk" #Pickle file to mail later
@@ -77,7 +77,7 @@ def jobsie(a):
         updated = i.find('dd', {'class':'fa-clock-o'}).text
         site = "jobs.ie"
         jobID = url.replace('&', '=').split('=')[1]
-        lastDate = get_last_date(jobID)
+        lastDate = get_oldest_date(jobID)
         a.append([job_title, url, location, comp, updated, site, jobID, lastDate])
 
 def irishjobs(a):
@@ -90,7 +90,7 @@ def irishjobs(a):
         updated = x.find('li', {'class':'updated-time'}).text.replace('Updated ', '')
         site = "irishjobs.ie"
         jobID = url.split('-')[-1].split('.')[0]
-        lastDate = get_last_date(jobID)
+        lastDate = get_oldest_date(jobID)
         a.append([title, url, location, comp, updated, site, jobID, lastDate])
 
 def mk_df(a):
@@ -129,9 +129,10 @@ def main():
 
   #dump to Database stuff, should be in its own function but i am tired. 
   #Also should add a job to clean up old db stuff to keep file small. 
-  cnx = sqlite3.connect(db)
+  #cnx = sqlite3.connect(db)
   df_2_dump = df.drop('lastDate', axis=1)
-  df_2_dump.to_sql(name='jobs', con=cnx, if_exists='append')
+  df_2_db(df_2_dump)
+  #df_2_dump.to_sql(name='jobs', con=cnx, if_exists='append')
   
   #Dump to pickle file so we can mail it later
   pickle.dump(df.to_html(escape = False), open(pk_file, 'wb'))
