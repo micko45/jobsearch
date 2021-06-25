@@ -2,6 +2,7 @@ import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import pickle
+
 p_file = "./files/pikle.pk"
 loaded = pickle.load(open(p_file, 'rb'))
 
@@ -42,3 +43,6 @@ def authMailHtml():
         )
 
 authMailHtml()
+
+#if __name__ == "__main__":
+#  print(loaded)

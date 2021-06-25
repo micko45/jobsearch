@@ -40,7 +40,7 @@ def get_oldest_date(jobid):
   for d in data:
      data =  "".join(d)
 
-     if data == today:
+     if data == today or str(data) == "None":
        return "Today"
 
      elif data == yesterday:
