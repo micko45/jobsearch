@@ -4,6 +4,7 @@ import re, datetime
 import pandas as pd
 import pickle  
 import sqlite3
+import mail_df
 from db import get_last_date, df_2_db, get_oldest_date
 import re
 
@@ -115,14 +116,14 @@ def mk_df(a):
         #Clean up company stuff. 
         df.loc[index, 'comp'] = convert_comp( df.loc[index, 'comp'])
     
-    df['updated'] =pd.to_datetime(df.updated, dayfirst=True).dt.date #make the date a date type
+    df['updated'] = pd.to_datetime(df.updated, dayfirst=True).dt.date #make the date a date type
     df = df.sort_values(by = 'updated', ascending=False) #sort by date
     df['url'] = '<a href=' + df['url'] + '><div>' + 'url' + '</div></a>' # make the url a anchor
     df.fillna("None", inplace=True)
     
     return df
 
-def main():
+def main(recentJobs=False):
   a = []
   irishjobs(a)
   jobsie(a)
@@ -132,16 +133,18 @@ def main():
   #Also should add a job to clean up old db stuff to keep file small. 
   #cnx = sqlite3.connect(db)
   df_2_dump = df.drop('lastDate', axis=1)
-  #df_2_dump = df.drop('lastDate', axis=1)
   df_2_db(df_2_dump)
-  #df_2_dump.to_sql(name='jobs', con=cnx, if_exists='append')
   
   #Dump to pickle file so we can mail it later
-  #df_2_dump = df_2_dump[df_2_dump["lastDate"].str.contains("Yesterday|Today|None")]
-  pickle.dump(df[df["lastDate"].str.contains("Yesterday|Today|None")].to_html(escape = False), open(pk_file, 'wb'))
+  if recentJobs:
+    df = df[df["lastDate"].str.contains("Yesterday|Today|None")]
+    mail_df.sendDFAsMail(df, "Job Search Recent")
+  else:
+    #df_2_dump = df_2_dump[df_2_dump["lastDate"].str.contains("Yesterday|Today|None")]
+    mail_df.sendDFAsMail(df, "Job Search All")
 
   print( df[df["lastDate"].str.contains("Yesterday|Today|None")] )
 #  print(df.head())
 
-main()
-
+if __name__ == '__main__':
+  main()
