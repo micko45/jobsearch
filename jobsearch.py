@@ -94,6 +94,9 @@ def irishjobs(a):
         lastDate = get_oldest_date(jobID)
         a.append([title, url, location, comp, updated, site, jobID, lastDate])
 
+def vodafoneJobs()
+  
+
 def mk_df(a):
     #make a dataframe from all the shit got from irishjobs.ie and jobs.ie
     #lastDate sucks and should be name changned as its first date job appeared
