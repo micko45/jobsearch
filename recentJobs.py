@@ -3,5 +3,5 @@
 
 import jobsearch
 
-jobsearch.main(False)
+jobsearch.main(True)
 

@@ -139,12 +139,11 @@ def main(recentJobs=False):
   if recentJobs:
     df = df[df["lastDate"].str.contains("Yesterday|Today|None")]
     mail_df.sendDFAsMail(df, "Job Search Recent")
+    print( df[df["lastDate"].str.contains("Yesterday|Today|None")] )
   else:
     #df_2_dump = df_2_dump[df_2_dump["lastDate"].str.contains("Yesterday|Today|None")]
     mail_df.sendDFAsMail(df, "Job Search All")
-
-  print( df[df["lastDate"].str.contains("Yesterday|Today|None")] )
-#  print(df.head())
+    print( df )
 
 if __name__ == '__main__':
   main()
