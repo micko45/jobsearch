@@ -5,12 +5,14 @@ import pandas as pd
 import pickle  
 import sqlite3
 import mail_df
-from db import get_last_date, df_2_db, get_oldest_date
-import re
+#from db import get_last_date, df_2_db, get_oldest_date
+import db_custom
+import re, os
 
 pk_file = "./files/pikle.pk" #Pickle file to mail later
 pd.set_option('display.max_colwidth', -1) #Pandas tuncates on raspberry pi. 
-db = './files/db.sql' #We always need a DB
+script_cwd = os.path.dirname(__file__)
+db = script_cwd + '/files/db.sql' #We always need a DB
 
 #some job sites are iffy when it comes to headers so spoof chrome
 headers = {
@@ -78,7 +80,7 @@ def jobsie(a):
         updated = i.find('dd', {'class':'fa-clock-o'}).text
         site = "jobs.ie"
         jobID = url.replace('&', '=').split('=')[1]
-        lastDate = get_oldest_date(jobID)
+        lastDate = db_custom.get_oldest_date(jobID)
         a.append([job_title, url, location, comp, updated, site, jobID, lastDate])
 
 def irishjobs(a):
@@ -91,10 +93,10 @@ def irishjobs(a):
         updated = x.find('li', {'class':'updated-time'}).text.replace('Updated ', '')
         site = "irishjobs.ie"
         jobID = url.split('-')[-1].split('.')[0]
-        lastDate = get_oldest_date(jobID)
+        lastDate = db_custom.get_oldest_date(jobID)
         a.append([title, url, location, comp, updated, site, jobID, lastDate])
 
-def vodafoneJobs()
+#def vodafoneJobs()
   
 
 def mk_df(a):
@@ -136,7 +138,7 @@ def main(recentJobs=False):
   #Also should add a job to clean up old db stuff to keep file small. 
   #cnx = sqlite3.connect(db)
   df_2_dump = df.drop('lastDate', axis=1)
-  df_2_db(df_2_dump)
+  db_custom.df_2_db(df_2_dump)
   
   #Dump to pickle file so we can mail it later
   if recentJobs:
