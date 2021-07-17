@@ -2,7 +2,8 @@ import sqlite3, os
 from datetime import datetime, timedelta, date
 
 cwd_path = os.path.dirname(__file__)
-db = cwd_path + '/files/db.sql'
+db = cwd_path + '/../files/db.sql'
+print(db)
 con = sqlite3.connect(db)
 cur = con.cursor()
 

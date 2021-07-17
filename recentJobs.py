@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3 
 
 
-import jobsearch
+import jobsearch.jobsearch as jobsearch
 
-jobsearch.main(True)
+jobsearch.run(True)
 

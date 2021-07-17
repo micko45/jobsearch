@@ -1,18 +1,15 @@
-import requests
 from bs4 import BeautifulSoup as bs
-import re, datetime
 import pandas as pd
-import pickle  
-import sqlite3
-import mail_df
-#from db import get_last_date, df_2_db, get_oldest_date
-import db_custom
-import re, os
+import mail.mail_df as mail_df
+import db.db_custom as db_custom
+import re, os, warnings, pickle, sqlite3, datetime, requests
 
 pk_file = "./files/pikle.pk" #Pickle file to mail later
 pd.set_option('display.max_colwidth', -1) #Pandas tuncates on raspberry pi. 
 script_cwd = os.path.dirname(__file__)
 db = script_cwd + '/files/db.sql' #We always need a DB
+job_type = "linux"
+
 
 #some job sites are iffy when it comes to headers so spoof chrome
 headers = {
@@ -25,13 +22,13 @@ headers = {
 }
 
 #Set up jobs.ie
-url = 'https://www.jobs.ie/linux-jobs'
+url = 'https://www.jobs.ie/{}-jobs'.format(job_type)
 r = requests.get(url, headers = headers)
 soup = bs(r.content, 'html.parser')
 data = soup.find_all('div', {'class':"job-details-header serp-item default"}) # Pull down only the job sections
 
 #Set up irishjobs.ie
-url2 = "https://www.irishjobs.ie/ShowResults.aspx?Keywords=linux&autosuggestEndpoint=%2Fautosuggest&Location=0&Category=&Recruiter=Company&Recruiter=Agency&btnSubmit=Search"
+url2 = "https://www.irishjobs.ie/ShowResults.aspx?Keywords={}&autosuggestEndpoint=%2Fautosuggest&Location=0&Category=&Recruiter=Company&Recruiter=Agency&btnSubmit=Search".format(job_type)
 r2 = requests.get(url2, headers = headers)
 soup2 = bs(r2.content, 'html.parser')
 # data2 = soup2.find_all('div', {'class':'module job-result'}) #Weirdly wont work on python 3.5
@@ -128,7 +125,7 @@ def mk_df(a):
     
     return df
 
-def main(recentJobs=False):
+def run(recentJobs=False):
   a = []
   irishjobs(a)
   jobsie(a)
@@ -151,4 +148,4 @@ def main(recentJobs=False):
     print( df )
 
 if __name__ == '__main__':
-  main()
+  run()
