@@ -3,7 +3,7 @@ import pandas as pd
 import db.db_custom as db_custom
 import re, sys, os, warnings, sqlite3, datetime, requests
 
-pd.set_option('display.max_colwidth', -1) #Pandas tuncates on raspberry pi. 
+pd.set_option('display.max_colwidth', None) #Pandas tuncates on raspberry pi. 
 script_cwd = os.path.dirname(__file__)
 db = script_cwd + '/files/db.sql' #We always need a DB
 job_type = "linux"
