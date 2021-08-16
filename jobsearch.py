@@ -1,16 +1,23 @@
 from bs4 import BeautifulSoup as bs
 import pandas as pd
-#import mail.mail_df as mail_df
 import db.db_custom as db_custom
-import re, os, warnings, sqlite3, datetime, requests
+import re, sys, os, warnings, sqlite3, datetime, requests
 
-#pk_file = "./files/pikle.pk" #Pickle file to mail later
 pd.set_option('display.max_colwidth', -1) #Pandas tuncates on raspberry pi. 
 script_cwd = os.path.dirname(__file__)
 db = script_cwd + '/files/db.sql' #We always need a DB
 job_type = "linux"
 
 
+#Check args for recent option. Which will only show recent jobs
+if len(sys.argv) > 1:
+  if sys.argv[1] == 'recent':
+    recentJobs = True
+  else:
+    recentJobs = False
+else:
+  recentJobs = False
+  
 #some job sites are iffy when it comes to headers so spoof chrome
 headers = {
 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9", 
@@ -31,7 +38,6 @@ data = soup.find_all('div', {'class':"job-details-header serp-item default"}) # 
 url2 = "https://www.irishjobs.ie/ShowResults.aspx?Keywords={}&autosuggestEndpoint=%2Fautosuggest&Location=0&Category=&Recruiter=Company&Recruiter=Agency&btnSubmit=Search".format(job_type)
 r2 = requests.get(url2, headers = headers)
 soup2 = bs(r2.content, 'html.parser')
-# data2 = soup2.find_all('div', {'class':'module job-result'}) #Weirdly wont work on python 3.5
 data2 = soup2.find_all('div', {'class':  re.compile(r'module job-result')}) #Works on python 3.5 but seems slower
 
 year = datetime.datetime.now().strftime("%Y")
@@ -93,9 +99,6 @@ def irishjobs(a):
         lastDate = db_custom.get_oldest_date(jobID)
         a.append([title, url, location, comp, updated, site, jobID, lastDate])
 
-#def vodafoneJobs()
-  
-
 def mk_df(a):
     #make a dataframe from all the shit got from irishjobs.ie and jobs.ie
     #lastDate sucks and should be name changned as its first date job appeared
@@ -118,42 +121,45 @@ def mk_df(a):
         #Clean up company stuff. 
         df.loc[index, 'comp'] = convert_comp( df.loc[index, 'comp'])
     
+    #prepare DF 
     df['updated'] = pd.to_datetime(df.updated, dayfirst=True).dt.date #make the date a date type
     df = df.sort_values(by = 'updated', ascending=False) #sort by date
     df['url'] = '<a href=' + df['url'] + '><div>' + 'url' + '</div></a>' # make the url a anchor
-    df.fillna("None", inplace=True)
+    df.fillna("None", inplace=True) #Replace NA with None
     
     return df
 
-def run(recentJobs=False):
+def run():
+#def run(recentJobs=False):
+  #Get all jobs into array (a)
   a = []
   irishjobs(a)
   jobsie(a)
   df = mk_df(a)
-  sendMail = False #dont try to send any mails if Flase
 
-  #dump to Database stuff, should be in its own function but i am tired. 
+  #Email is now deprecated
+  sendMail = False #dont try to send any mails if False
+
+  #Dump to Database stuff,
   #Also should add a job to clean up old db stuff to keep file small. 
-  #cnx = sqlite3.connect(db)
   df_2_dump = df.drop('lastDate', axis=1)
   db_custom.df_2_db(df_2_dump)
   
-  #Dump to pickle file so we can mail it later
-  
+  #Recent jobs is for jobs newer than two days. (yesterday/today)
   if recentJobs:
     df = df[df["lastDate"].str.contains("Yesterday|Today|None")]
     if sendMail == True:
-      #mail_df.sendDFAsMail(df, "Job Search Recent")
       print( df[df["lastDate"].str.contains("Yesterday|Today|None")] )
+      print("Mailing is now depricated")
     else:
       print(df.to_html(escape = False))
   else:
     if sendMail == True:
-      #df_2_dump = df_2_dump[df_2_dump["lastDate"].str.contains("Yesterday|Today|None")]
-      #mail_df.sendDFAsMail(df, "Job Search All")
       print( df )
+      print("Mailing is now depricated")
     else:
       print(df.to_html(escape = False))
 
 if __name__ == '__main__':
   run()
+  pass
