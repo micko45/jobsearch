@@ -1,10 +1,10 @@
 from bs4 import BeautifulSoup as bs
 import pandas as pd
-import mail.mail_df as mail_df
+#import mail.mail_df as mail_df
 import db.db_custom as db_custom
-import re, os, warnings, pickle, sqlite3, datetime, requests
+import re, os, warnings, sqlite3, datetime, requests
 
-pk_file = "./files/pikle.pk" #Pickle file to mail later
+#pk_file = "./files/pikle.pk" #Pickle file to mail later
 pd.set_option('display.max_colwidth', -1) #Pandas tuncates on raspberry pi. 
 script_cwd = os.path.dirname(__file__)
 db = script_cwd + '/files/db.sql' #We always need a DB
@@ -130,7 +130,7 @@ def run(recentJobs=False):
   irishjobs(a)
   jobsie(a)
   df = mk_df(a)
-  sendMail = False
+  sendMail = False #dont try to send any mails if Flase
 
   #dump to Database stuff, should be in its own function but i am tired. 
   #Also should add a job to clean up old db stuff to keep file small. 
@@ -143,14 +143,14 @@ def run(recentJobs=False):
   if recentJobs:
     df = df[df["lastDate"].str.contains("Yesterday|Today|None")]
     if sendMail == True:
-      mail_df.sendDFAsMail(df, "Job Search Recent")
+      #mail_df.sendDFAsMail(df, "Job Search Recent")
       print( df[df["lastDate"].str.contains("Yesterday|Today|None")] )
     else:
       print(df.to_html(escape = False))
   else:
     if sendMail == True:
       #df_2_dump = df_2_dump[df_2_dump["lastDate"].str.contains("Yesterday|Today|None")]
-      mail_df.sendDFAsMail(df, "Job Search All")
+      #mail_df.sendDFAsMail(df, "Job Search All")
       print( df )
     else:
       print(df.to_html(escape = False))

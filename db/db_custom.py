@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, date
 
 cwd_path = os.path.dirname(__file__)
 db = cwd_path + '/../files/db.sql'
-print(db)
+#print(db)
 con = sqlite3.connect(db)
 cur = con.cursor()
 
@@ -55,7 +55,7 @@ def df_2_db(df):
   df.to_sql(name='_jobs_tmp', con=con, if_exists='append')
 
   sql = 'insert or ignore into _jobs("index", title, url, location, comp, updated, site, jobid) select "index", title, url, location, comp, max(updated), site, JobID as latest from _jobs_tmp  group by JobID;'
-  print(sql)
+  #print(sql)
   cur.execute(sql)
   con.commit()
  

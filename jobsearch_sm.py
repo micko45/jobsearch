@@ -125,12 +125,12 @@ def mk_df(a):
     
     return df
 
-def run(recentJobs=False):
+def run(recentJobs=True):
   a = []
   irishjobs(a)
   jobsie(a)
   df = mk_df(a)
-  sendMail = False
+  sendMail = False #dont try to send any mails if Flase
 
   #dump to Database stuff, should be in its own function but i am tired. 
   #Also should add a job to clean up old db stuff to keep file small. 
